@@ -109,7 +109,7 @@ function streamParse(inputStream, splitOn = ''){
             let data = root.children[documentTag][0]
 
             output.send({data, documentTag})
-            node.parent.children = [] // This is the magic trick that saves memory
+            node.parent.children = node.parent.children.filter(child => child.name !== name) // This is the magic trick that saves memory. Removes all nodes with the tag to split on.
         }
     }
     parser.on('error', err => {

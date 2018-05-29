@@ -21,6 +21,7 @@ let testData1 = `
 <document>
     <test hello="world">yo</test>
     <list>
+        <otheritem>yoyo</otheritem>
         <item>
             <nestedlist>
                 <nesteditem attr="attr1">1</nesteditem>
@@ -102,12 +103,20 @@ describe('XmlReader', () => {
         ).to.equal('yo')
 
         chai.expect(
+            readers[0].valAt('list.otheritem')
+        ).to.equal('yoyo')
+
+        chai.expect(
             readers[0].asArrayAll('list.item.nestedlist.nesteditem').map(r => r.val())
         ).to.deep.equal(['1', '2'])
 
         chai.expect(
             readers[1].valAt('test')
         ).to.equal('yo')
+
+        chai.expect(
+            readers[1].valAt('list.otheritem')
+        ).to.equal('yoyo')
 
         chai.expect(
             readers[1].asArrayAll('list.item.nestedlist.nesteditem').map(r => r.val())
