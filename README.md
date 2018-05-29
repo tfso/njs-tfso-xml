@@ -2,9 +2,9 @@
 
 Utilities for reading and writing xml (public)
 
-## Usage
+# Usage
 
-Reader:
+## Reader
 
 ````js
 const XmlReader = require('njs-tfso-xml').XmlReader
@@ -76,6 +76,8 @@ Utils
 * toString() -> Returns the current reader data as an xml string. This may not make sense unless you're at the root element
 
 The documentTag can be found at reader.documentTag. Paths are excluded the documentTag.
+
+### Example using streaming parser
 
 ````js
 const XmlReader = require('njs-tfso-xml').XmlReader
