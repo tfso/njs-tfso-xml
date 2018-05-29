@@ -8,9 +8,9 @@
   "dependencies": {
     "lodash": "^4.17.10",
     "sax": "^1.2.4",
-    "through2": "2.0.3",
+    "through2": "^2.0.3",
     "xml2js": "^0.4.19",
-    "xmldom": "0.1.27"
+    "xmldom": "^0.1.27"
   },
   "devDependencies": {
     "chai": "^3.5.0",
