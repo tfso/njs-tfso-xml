@@ -5,12 +5,10 @@ const _ = require('lodash')
 function convertNodeToXml2JsFormat(node){
     let newNode = {}
 
-    let children = {}
-    _(node.children)
+    let children = _(node.children)
         .groupBy('name')
-        .forEach((nodes, key) => {
-            children[key] = nodes.map(value => convertNodeToXml2JsFormat(value))
-        })
+        .mapValues(nodes => nodes.map(value => convertNodeToXml2JsFormat(value)))
+        .value()
 
     if(node.text){
         newNode.text = node.text
@@ -60,13 +58,15 @@ function streamParse(inputStream, splitOn = ''){
     const parser = sax.createStream(true)
     const output = createOutputStream()
 
-    let stack = [{
+    const baseNode = {
         name: 'base',
         attributes: {},
         text: '',
         children: [],
         parent: null
-    }]
+    }
+
+    let stack = [baseNode]
 
     parser.onopentag = (node) => {
         let parent = stack[stack.length - 1]
@@ -100,16 +100,13 @@ function streamParse(inputStream, splitOn = ''){
         node.text = node.text.trim()
 
         if(location === splitOn){
-            let baseNode = node
-            while(baseNode.parent !== null){
-                baseNode = baseNode.parent
-            }
-            let documentTag = baseNode.children[0].name
-            let root = convertNodeToXml2JsFormat(baseNode)
-            let data = root.children[documentTag][0]
+            let documentNode = baseNode.children[0]
+            let documentTag = documentNode.name
+            let data = convertNodeToXml2JsFormat(documentNode)
+
+            node.parent.children = node.parent.children.filter(child => child.name !== name) // This is the magic trick that saves memory. Removes all nodes with the tag to split on.
 
             output.send({data, documentTag})
-            node.parent.children = node.parent.children.filter(child => child.name !== name) // This is the magic trick that saves memory. Removes all nodes with the tag to split on.
         }
     }
     parser.on('error', err => {
