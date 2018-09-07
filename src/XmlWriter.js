@@ -25,12 +25,6 @@ class XmlWriter{
         doc.insertBefore(doc.createProcessingInstruction('xml', 'version="1.0" encoding="utf-8"'), doc.documentElement)
         let documentElement = doc.documentElement
 
-        if(namespaceURI && namespace){
-            documentElement.setAttributeNS(namespaceURI, 'xmlns', namespace)
-        }
-        if(namespaceURI){
-            documentElement.setAttributeNS(namespaceURI, 'xmlns:xsi', namespaceURI)
-        }
         if(namespaceURI && schemaLocation){
             documentElement.setAttributeNS(namespaceURI, 'xsi:schemaLocation', schemaLocation)
         }
