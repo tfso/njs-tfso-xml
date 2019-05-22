@@ -1,5 +1,7 @@
 const DOMImplementation = require('xmldom').DOMImplementation
 const XMLSerializer = require('xmldom').XMLSerializer
+const DOMParser = require('xmldom').DOMParser
+const XmlReader = require('./XmlReader')
 
 class XmlWriter{
     /**
@@ -19,11 +21,11 @@ class XmlWriter{
      * @returns {XmlWriter}
      */
     static create(namespace, namespaceURI, schemaLocation, documentName = 'Document'){
-        let dom = new DOMImplementation()
-        let doc = dom.createDocument(namespace, documentName)
+        const dom = new DOMImplementation()
+        const doc = dom.createDocument(namespace, documentName)
 
         doc.insertBefore(doc.createProcessingInstruction('xml', 'version="1.0" encoding="utf-8"'), doc.documentElement)
-        let documentElement = doc.documentElement
+        const documentElement = doc.documentElement
 
         if(namespaceURI && schemaLocation){
             documentElement.setAttributeNS(namespaceURI, 'xsi:schemaLocation', schemaLocation)
@@ -37,7 +39,7 @@ class XmlWriter{
      * @returns {*}
      */
     static fromReader(reader){
-        let writer = XmlWriter.create('', '', '', reader.documentTag)
+        const writer = XmlWriter.create('', '', '', reader.currentTag)
 
         /**
          * @param {XmlReader} reader
@@ -46,7 +48,7 @@ class XmlWriter{
         let write = (reader, writer) => {
             for(let key of reader.keys()){
                 for(let obj of reader.asArray(key)){
-                    let writeChildren = nextWriter => write(obj, nextWriter)
+                    const writeChildren = nextWriter => write(obj, nextWriter)
                     writer.add(key, writeChildren, obj.attributes(), obj.val())
                 }
             }
@@ -82,13 +84,13 @@ class XmlWriter{
      * @returns {XmlWriter}
      */
     addAndGet(path, valueOrFunctionOrNull = null, attributes = null, value = null){
-        let parts = path.split('.')
-        let firstPath = parts[0]
-        let remainingPath = parts.slice(1).join('.')
+        const parts = path.split('.')
+        const firstPath = parts[0]
+        const remainingPath = parts.slice(1).join('.')
 
-        let elem = this._doc.createElementNS(this._doc.documentElement.namespaceURI, firstPath)
+        const elem = this._doc.createElementNS(this._doc.documentElement.namespaceURI, firstPath)
         this._elem.appendChild(elem)
-        let writer = new XmlWriter(this._doc, elem)
+        const writer = new XmlWriter(this._doc, elem)
 
         if(remainingPath.length === 0){
             if(typeof valueOrFunctionOrNull === 'function'){
@@ -112,6 +114,12 @@ class XmlWriter{
         return writer.addAndGet(remainingPath, valueOrFunctionOrNull, attributes)
     }
 
+    setValRaw(raw){
+        const parser = new DOMParser()
+        this._elem.appendChild(parser.parseFromString(raw))
+        return this
+    }
+
     setVal(value){
         this._elem.textContent = value
         return this
@@ -123,8 +131,16 @@ class XmlWriter{
     }
 
     toString(){
-        let s = new XMLSerializer()
+        const s = new XMLSerializer()
         return s.serializeToString(this._doc)
+    }
+
+    /**
+     * toString of the current document element
+     */
+    toFragmentString(){
+        const s = new XMLSerializer()
+        return s.serializeToString(this._elem)
     }
 }
 

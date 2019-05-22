@@ -6,9 +6,9 @@ const parse = require('./parse')
 const XmlWriter = require('./XmlWriter')
 
 class XmlReader{
-    constructor(data, documentTag){
+    constructor(data, currentTag){
         this.data = data
-        this.documentTag = documentTag
+        this.currentTag = currentTag
     }
 
     static streamParseFromString(xmlString, splitOn){
@@ -23,6 +23,10 @@ class XmlReader{
             }))
     }
 
+    /**
+     * @param xmlString
+     * @returns {Promise<XmlReader>}
+     */
     static async parse(xmlString){
         return parse(xmlString)
             .then(({data, documentTag}) => {
@@ -55,7 +59,7 @@ class XmlReader{
     }
 
     keys(){
-        return Object.keys(this.data.children || {})
+        return Object.keys((this.data && this.data.children) || {})
     }
 
     /**
@@ -65,9 +69,10 @@ class XmlReader{
      * @returns {XmlReader}
      */
     asObject(path){
+        const tag = path.split('.').reverse()[0]
         path = path.replace(/\./g, '.0.children.')
         path = `children.${path}.0`
-        return new XmlReader(_.get(this.data, path))
+        return new XmlReader(_.get(this.data, path), tag)
     }
 
     /**
@@ -78,9 +83,10 @@ class XmlReader{
      * @returns {XmlReader[]}
      */
     asArray(path){
+        const tag = path.split('.').reverse()[0]
         path = path.replace(/\./g, '.0.children.')
         path = `children.${path}`
-        return _.get(this.data, path, []).map(obj => new XmlReader(obj))
+        return _.get(this.data, path, []).map(obj => new XmlReader(obj, tag))
     }
 
     /**
@@ -95,12 +101,12 @@ class XmlReader{
             return []
         }
 
-        let parts = path.split('.')
+        const parts = path.split('.')
 
-        let firstPath = parts[0]
-        let remainingPath = parts.slice(1).join('.')
+        const firstPath = parts[0]
+        const remainingPath = parts.slice(1).join('.')
 
-        let curr = this.asArray(firstPath)
+        const curr = this.asArray(firstPath)
 
         if(remainingPath.length === 0){
             return curr
@@ -115,6 +121,10 @@ class XmlReader{
 
     toString(){
         return XmlWriter.fromReader(this).toString()
+    }
+
+    toFragmentString(){
+        return XmlWriter.fromReader(this).toFragmentString()
     }
 }
 
