@@ -47,4 +47,21 @@ describe('XmlWriter', () => {
 
         chai.expect(reader.valAt('test')).to.equal('hello!')
     })
+
+    it('should inject several simple values', async () => {
+        const writer = XmlWriter.create('', '', '', 'Document')
+
+        writer.adds('node', ['a', 'b'])
+
+        chai.expect(writer.toString()).to.deep.equal('<?xml version="1.0" encoding="utf-8"?><Document><node>a</node><node>b</node></Document>')
+    })
+
+    it('should inject several custom values with attributes', async () => {
+        const writer = XmlWriter.create('', '', '', 'Document')
+
+        const items = ['a', 'b']
+        writer.adds('node', items, (node, item)=> node.add('id', item), {prop:'yo'})
+
+        chai.expect(writer.toString()).to.deep.equal('<?xml version="1.0" encoding="utf-8"?><Document><node prop="yo"><id>a</id></node><node prop="yo"><id>b</id></node></Document>')
+    })
 })

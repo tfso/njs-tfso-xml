@@ -77,6 +77,33 @@ class XmlWriter{
     }
 
     /**
+     * Ex:
+     *      // simple element creation
+     *      writer.adds('node', ['a','b'])
+     *      <node>a<node>
+     *      <node>b<node>
+     *      // or a custom element creation
+     *      writer.adds('node', ['a','b'], (node, str) => node
+     *            .add('Id', str)
+     *      )
+     *      <node><Id>a</Id><node>
+     *      <node><Id>b</Id><node>
+     * @param {string} path
+     * @param {Array} values
+     * @param {elementCallback|*} valueOrFunctionOrNull
+     * @param {Object|null} attributes
+     * @returns {XmlWriter}
+     */
+    adds(path, values, valueOrFunctionOrNull = null, attributes = null){
+        valueOrFunctionOrNull = valueOrFunctionOrNull || ((writer, value) => writer.setVal(value))
+        values.forEach(value =>{
+            this.addAndGet(path, (writer) => valueOrFunctionOrNull(writer, value), attributes)
+        })
+
+        return this
+    }
+
+    /**
      * @param {string} path
      * @param {elementCallback|*} valueOrFunctionOrNull
      * @param {Object|null} attributes
