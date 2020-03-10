@@ -28,7 +28,8 @@ class XmlWriter{
         const documentElement = doc.documentElement
 
         if(namespaceURI && schemaLocation){
-            documentElement.setAttributeNS(namespaceURI, 'xsi:schemaLocation', schemaLocation)
+            documentElement.setAttribute('xmlns:xsi', namespaceURI)
+            documentElement.setAttribute('xsi:schemaLocation', schemaLocation)
         }
 
         return new XmlWriter(doc, documentElement)
