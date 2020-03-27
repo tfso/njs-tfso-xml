@@ -21,18 +21,26 @@ class XmlWriter{
      * @returns {XmlWriter}
      */
     static create(namespace, namespaceURI, schemaLocation, documentName = 'Document'){
-        const dom = new DOMImplementation()
-        const doc = dom.createDocument(namespace, documentName)
-
-        doc.insertBefore(doc.createProcessingInstruction('xml', 'version="1.0" encoding="utf-8"'), doc.documentElement)
-        const documentElement = doc.documentElement
+        const {xmlWriter, doc, documentElement} = this.createRaw(namespace, documentName, 'version="1.0" encoding="utf-8"')
 
         if(namespaceURI && schemaLocation){
             documentElement.setAttribute('xmlns:xsi', namespaceURI)
             documentElement.setAttribute('xsi:schemaLocation', schemaLocation)
         }
 
-        return new XmlWriter(doc, documentElement)
+        return xmlWriter
+    }
+
+    static createRaw(namespace, documentName, processingIntruction = 'version="1.0" encoding="utf-8"') {
+        const dom = new DOMImplementation()
+        const doc = dom.createDocument(namespace, documentName)
+
+        doc.insertBefore(doc.createProcessingInstruction('xml', processingIntruction), doc.documentElement)
+        const documentElement = doc.documentElement
+
+        const xmlWriter = new XmlWriter(doc, documentElement)
+
+        return {xmlWriter, doc, documentElement}
     }
 
     /**
