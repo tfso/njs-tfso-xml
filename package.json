@@ -1,5 +1,5 @@
 {
-  "name": "njs-tfso-xml",
+  "name": "@tfso/njs-xml",
   "version": "1.5.0",
   "main": "./index.js",
   "scripts": {
