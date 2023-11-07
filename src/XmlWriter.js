@@ -1,6 +1,6 @@
-const DOMImplementation = require('xmldom').DOMImplementation
-const XMLSerializer = require('xmldom').XMLSerializer
-const DOMParser = require('xmldom').DOMParser
+const DOMImplementation = require('@xmldom/xmldom').DOMImplementation
+const XMLSerializer = require('@xmldom/xmldom').XMLSerializer
+const DOMParser = require('@xmldom/xmldom').DOMParser
 const XmlReader = require('./XmlReader')
 
 class XmlWriter{
