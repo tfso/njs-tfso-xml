@@ -3,7 +3,10 @@
   "version": "1.6.0",
   "main": "./index.js",
   "scripts": {
-    "test": "mocha --recursive ./test/**/test*"
+    "clean": "rm -rf package-lock.json node_modules",
+    "test": "npm run mocha",
+    "mocha": "mocha --exit --recursive --timeout 10000 ./test/**/*.test.js",
+    "cover": "nyc --reporter=html --reporter=text npm run mocha"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.10",
@@ -14,6 +17,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.10",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0"
   }
 }
