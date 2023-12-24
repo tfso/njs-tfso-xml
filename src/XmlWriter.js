@@ -1,7 +1,6 @@
 const DOMImplementation = require('@xmldom/xmldom').DOMImplementation
 const XMLSerializer = require('@xmldom/xmldom').XMLSerializer
 const DOMParser = require('@xmldom/xmldom').DOMParser
-const XmlReader = require('./XmlReader')
 
 class XmlWriter{
     /**
@@ -21,7 +20,8 @@ class XmlWriter{
      * @returns {XmlWriter}
      */
     static create(namespace, namespaceURI, schemaLocation, documentName = 'Document'){
-        const {xmlWriter, doc, documentElement} = this.createRaw(namespace, documentName, 'version="1.0" encoding="utf-8"')
+
+        const {xmlWriter, documentElement} = this.createRaw(namespace, documentName, 'version="1.0" encoding="utf-8"')
 
         if(namespaceURI && schemaLocation){
             documentElement.setAttribute('xmlns:xsi', namespaceURI)
