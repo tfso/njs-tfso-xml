@@ -1,5 +1,5 @@
 {
-    "extends": ["tfso/javascript", "prettier"],
+    "extends": ["@tfso/eslint-config/javascript", "prettier"],
     "env": {
         "mocha": true
     },

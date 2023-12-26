@@ -22,11 +22,11 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@tfso/eslint-config": "^1.1.4",
     "auto-changelog": "^2.4.0",
     "chai": "^4.3.10",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-config-tfso": "github:tfso/eslint-config-tfso",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^3.1.1"
