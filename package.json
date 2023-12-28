@@ -3,7 +3,16 @@
   "version": "1.6.0",
   "main": "./index.js",
   "scripts": {
-    "test": "mocha --recursive ./test/**/test*"
+    "clean": "rm -rf package-lock.json node_modules",
+    "build": "bash ./build.sh",
+    "test": "npm run mocha",
+    "mocha": "mocha --exit --recursive --timeout 10000 ./test/**/*.test.js",
+    "lint": "npx eslint src test *.js",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "npx prettier . --check",
+    "prettier:fix": "npm run prettier -- --write",
+    "format": "npm run prettier:fix && npm run lint:fix",
+    "cover": "nyc --reporter=html --reporter=text npm run mocha"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.8.10",
@@ -13,7 +22,20 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
+    "@tfso/eslint-config": "^1.1.4",
+    "auto-changelog": "^2.4.0",
     "chai": "^4.3.10",
-    "mocha": "^10.2.0"
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "prettier": "^3.1.1"
+  },
+  "auto-changelog": {
+    "issueUrl": "https://24so.atlassian.net/browse/{id}",
+    "issuePattern": "[A-Z]+-\\d+",
+    "unreleased": true,
+    "commitLimit": false,
+    "ignoreCommitPattern": "^(Update package.json|skip|Skip).*"
   }
 }
