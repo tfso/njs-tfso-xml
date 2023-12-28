@@ -5,60 +5,60 @@ const streamParse = require('./streamParse')
 const parse = require('./parse')
 const XmlWriter = require('./XmlWriter')
 
-class XmlReader{
-    constructor(data, currentTag){
+class XmlReader {
+    constructor(data, currentTag) {
         this.data = data
         this.currentTag = currentTag
     }
 
-    static streamParseFromString(xmlString, splitOn){
+    static streamParseFromString(xmlString, splitOn) {
         return XmlReader.streamParse(stringToStream(xmlString), splitOn)
     }
 
-    static streamParse(inputStream, splitOn){
-        return streamParse(inputStream, splitOn)
-            .pipe(through2.obj(function({data, documentTag}, enc, next){
+    static streamParse(inputStream, splitOn) {
+        return streamParse(inputStream, splitOn).pipe(
+            through2.obj(function ({ data, documentTag }, enc, next) {
                 this.push(new XmlReader(data, documentTag))
                 next()
-            }))
+            })
+        )
     }
 
     /**
      * @param xmlString
      * @returns {Promise<XmlReader>}
      */
-    static async parse(xmlString){
-        return parse(xmlString)
-            .then(({data, documentTag}) => {
-                return new XmlReader(data, documentTag)
-            })
+    static async parse(xmlString) {
+        return parse(xmlString).then(({ data, documentTag }) => {
+            return new XmlReader(data, documentTag)
+        })
     }
 
-    val(defaultValue){
+    val(defaultValue) {
         return _.get(this.data, 'text', defaultValue)
     }
 
-    valAt(path, defaultValue){
+    valAt(path, defaultValue) {
         return this.asObject(path).val(defaultValue)
     }
 
-    attribute(name, defaultValue){
+    attribute(name, defaultValue) {
         return _.get(this.data, 'attributes.' + name, defaultValue)
     }
 
-    attributes(){
+    attributes() {
         return _.get(this.data, 'attributes', {})
     }
 
-    attributeAt(path, name, defaultValue){
+    attributeAt(path, name, defaultValue) {
         return this.asObject(path).attribute(name, defaultValue)
     }
 
-    has(path){
+    has(path) {
         return this.asObject(path).data !== undefined
     }
 
-    keys(){
+    keys() {
         return Object.keys((this.data && this.data.children) || {})
     }
 
@@ -68,7 +68,7 @@ class XmlReader{
      * @param {string} path
      * @returns {XmlReader}
      */
-    asObject(path){
+    asObject(path) {
         const tag = path.split('.').reverse()[0]
         path = path.replace(/\./g, '.0.children.')
         path = `children.${path}.0`
@@ -82,11 +82,11 @@ class XmlReader{
      * @param path
      * @returns {XmlReader[]}
      */
-    asArray(path){
+    asArray(path) {
         const tag = path.split('.').reverse()[0]
         path = path.replace(/\./g, '.0.children.')
         path = `children.${path}`
-        return _.get(this.data, path, []).map(obj => new XmlReader(obj, tag))
+        return _.get(this.data, path, []).map((obj) => new XmlReader(obj, tag))
     }
 
     /**
@@ -96,8 +96,8 @@ class XmlReader{
      * @param path
      * @returns {XmlReader[]}
      */
-    asArrayAll(path){
-        if(path.length === 0){
+    asArrayAll(path) {
+        if (path.length === 0) {
             return []
         }
 
@@ -108,22 +108,22 @@ class XmlReader{
 
         const curr = this.asArray(firstPath)
 
-        if(remainingPath.length === 0){
+        if (remainingPath.length === 0) {
             return curr
         }
 
         return curr
-            .map(element => element.asArrayAll(remainingPath))
+            .map((element) => element.asArrayAll(remainingPath))
             .reduce((all, curr) => {
                 return [...all, ...curr]
             }, [])
     }
 
-    toString(){
+    toString() {
         return XmlWriter.fromReader(this).toString()
     }
 
-    toFragmentString(){
+    toFragmentString() {
         return XmlWriter.fromReader(this).toFragmentString()
     }
 }

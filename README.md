@@ -6,10 +6,10 @@ Utilities for reading and writing xml (public)
 
 ## Reader
 
-````js
+```js
 const XmlReader = require('njs-tfso-xml').XmlReader
 
-let data = `
+const data = `
 <document>
     <test hello="world">yo</test>
     <list>
@@ -29,61 +29,63 @@ let data = `
 </document>
 `
 
-async function main(){
-    let reader = await XmlReader.parse(data)
-    
+async function main() {
+    const reader = await XmlReader.parse(data)
+
     reader.attributeAt('test', 'hello')
     // 'world'
-    
+
     reader.valAt('list.item.nestedlist.nesteditem')
     // '1'
-    
+
     reader.has('list')
     // true
-    
+
     reader.has('blarg')
     // false
-    
-    reader.asArray('list.item.nestedlist.nesteditem').map(r => r.val())
+
+    reader.asArray('list.item.nestedlist.nesteditem').map((r) => r.val())
     // ['1', '2']
-    
-    reader.asArray('list.item.nestedlist.nesteditem').map(r => r.attribute('attr'))
+
+    reader
+        .asArray('list.item.nestedlist.nesteditem')
+        .map((r) => r.attribute('attr'))
     // ['attr1', 'attr2']
-    
-    reader.asArrayAll('list.item.nestedlist.nesteditem').map(r => r.val())
+
+    reader.asArrayAll('list.item.nestedlist.nesteditem').map((r) => r.val())
     // ['1', '2', '3', '4']
 }
-````
+```
 
 Utils
 
-* static parse(xmlString) -> Parses an xml string and returns a promise with an XmlReader
-* static streamParseFromString(xmlString, splitOn) -> Parses as string, but will break the file up on the splitOn path
-* static streamParse(inputStream, splitOn) -> Parses as string from given stream, but will break the file up on the splitOn path
-  splitOn is a dot-separated path (for example 'list.item').
-  The return value is a readable object stream that pushes XmlReaders.
+-   static parse(xmlString) -> Parses an xml string and returns a promise with an XmlReader
+-   static streamParseFromString(xmlString, splitOn) -> Parses as string, but will break the file up on the splitOn path
+-   static streamParse(inputStream, splitOn) -> Parses as string from given stream, but will break the file up on the splitOn path
+    splitOn is a dot-separated path (for example 'list.item').
+    The return value is a readable object stream that pushes XmlReaders.
 
-* val(defaultValue) -> Returns current text value
-* valAt(path, defaultValue) -> Returns text value at path
-* attribute(name, defaultValue) -> Returns attribute by name
-* attributes() -> Returns all attrbiutes
-* attributeAt(path, name, defaultValue) -> Returns attribute at path and name of attribute
-* has(path) -> Check if path exists
-* keys(path) -> List all children tags (one level deep)
-* asObject(path) -> Create a new XmlReader starting at the given path
-* asArray(path) -> Create an array of XmlReader's at the given path
-* asArrayAll(path) -> Same as asArray, except this will traverse all possible nodes to get there, not just the first
-* toString() -> Returns the current reader data as an xml string. This may not make sense unless you're at the root element
+-   val(defaultValue) -> Returns current text value
+-   valAt(path, defaultValue) -> Returns text value at path
+-   attribute(name, defaultValue) -> Returns attribute by name
+-   attributes() -> Returns all attrbiutes
+-   attributeAt(path, name, defaultValue) -> Returns attribute at path and name of attribute
+-   has(path) -> Check if path exists
+-   keys(path) -> List all children tags (one level deep)
+-   asObject(path) -> Create a new XmlReader starting at the given path
+-   asArray(path) -> Create an array of XmlReader's at the given path
+-   asArrayAll(path) -> Same as asArray, except this will traverse all possible nodes to get there, not just the first
+-   toString() -> Returns the current reader data as an xml string. This may not make sense unless you're at the root element
 
 The documentTag can be found at reader.documentTag. Paths are excluded the documentTag.
 
 ### Example using streaming parser
 
-````js
+```js
 const XmlReader = require('njs-tfso-xml').XmlReader
 const through2 = require('through2')
 
-let data = `
+const data = `
 <document>
     <test hello="world">yo</test>
     <list>
@@ -103,48 +105,54 @@ let data = `
 </document>
 `
 
-async function main(){
-    let splitOn = 'list.item'
-    
-    let readers = await new Promise((resolve, reject) => {
-        let readers = []
+async function main() {
+    const splitOn = 'list.item'
+
+    const readers = await new Promise((resolve, reject) => {
+        const readers = []
         XmlReader.streamParseFromString(data, splitOn)
             .on('end', () => resolve(readers))
             .on('error', (err) => reject(err))
-            .pipe(through2.obj(function(chunk, enc, next){
-                readers.push(chunk)
-                next()
-            }))
+            .pipe(
+                through2.obj((chunk, enc, next) => {
+                    readers.push(chunk)
+                    next()
+                })
+            )
     })
 
-    readers[0].valAt('test') 
+    readers[0].valAt('test')
     // yo
-    
-    readers[0].asArrayAll('list.item.nestedlist.nesteditem').map(r => r.val())
+
+    readers[0].asArrayAll('list.item.nestedlist.nesteditem').map((r) => r.val())
     // ['1', '2']
-    
+
     readers[1].valAt('test')
     // yo
-    
-    readers[1].asArrayAll('list.item.nestedlist.nesteditem').map(r => r.val())
+
+    readers[1].asArrayAll('list.item.nestedlist.nesteditem').map((r) => r.val())
     // ['3', '4']
 }
-````
+```
 
 ## Change log
+
 The [CHANGELOG.md](CHANGELOG.md) is automatically generated by [`auto-changelog`](https://github.com/CookPete/auto-changelog) by analysing PR, tags and commits.
 
 # Contribution
-You are welcome to contribute to the project by creating a pull request. Please follow the guidelines below to 
+
+You are welcome to contribute to the project by creating a pull request. Please follow the guidelines below to
 contribute effectively.
 
 ## Creating a Pull Request (PR)
+
 To create a pull request, follow these steps:
+
 ### 1. Clone the repository
 
 ### 2. Create branch
 
-- Create a new branch for your feature or bug fix.
+-   Create a new branch for your feature or bug fix.
 
 ```shell
 git checkout -b feature/your-feature
@@ -152,11 +160,11 @@ git checkout -b feature/your-feature
 
 ### 2. Make Changes
 
-- Make your changes and ensure they follow our coding standards.
+-   Make your changes and ensure they follow our coding standards.
 
 ### 3. Commit Changes
 
-- Include `#deploy_branch` in your commit message in order to create a prerelease of your branch
+-   Include `#deploy_branch` in your commit message in order to create a prerelease of your branch
 
 ```shell
 git add .
@@ -165,7 +173,7 @@ git commit -m "Descriptive commit message #deploy_branch"
 
 ### 4. Push Changes
 
-- Push your changes to the repository.
+-   Push your changes to the repository.
 
 ```shell
 git push origin feature/your-feature
@@ -173,32 +181,42 @@ git push origin feature/your-feature
 
 ### 5. Open a Pull Request
 
-- Go this repository on GitHub
-- Click on "New Pull Request."
-- Provide a detailed description of your changes.
-- Add a reviewer to your pull request.
+-   Go this repository on GitHub
+-   Click on "New Pull Request."
+-   Provide a detailed description of your changes.
+-   Add a reviewer to your pull request.
 
 ## Prerelease
-If you need to test your branch during development, create a commit that includes `#deploy_branch` in the commit message. 
-This will trigger a prerelease, allowing you to test in your project without creating a full package release. 
+
+If you need to test your branch during development, create a commit that includes `#deploy_branch` in the commit message.
+This will trigger a prerelease, allowing you to test in your project without creating a full package release.
 
 ### CICD rules
-- auto prerelease on commit message `#deploy_branch`
-- auto prerelease from `main` branch
+
+-   auto prerelease on commit message `#deploy_branch`
+-   auto prerelease from `main` branch
 
 ## Release
+
 To create a new official release that update the `latest` release of the package, follow these steps:
 
 ### 1. Merge to Master
-   - Ensure your changes are merged into the main branch.
+
+-   Ensure your changes are merged into the main branch.
+
 ### 2. Draft a New Release
-   - Go to the GitHub repository.
-   - Click on the "Releases" tab.
-   - Click "Draft a new release."
+
+-   Go to the GitHub repository.
+-   Click on the "Releases" tab.
+-   Click "Draft a new release."
+
 ### 3. Tag the Release
-   - Choose a version number following semantic versioning (e.g., v1.0.0).
-   - Provide release notes summarizing the changes since the last release.
+
+-   Choose a version number following semantic versioning (e.g., v1.0.0).
+-   Provide release notes summarizing the changes since the last release.
+
 ### 4. Publish the Release
-   - Click "Publish release" to make it official.
+
+-   Click "Publish release" to make it official.
 
 Thank you for your contribution!

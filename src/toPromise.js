@@ -1,14 +1,14 @@
-function toPromise(func){
+function toPromise(func) {
     return new Promise((resolve, reject) => {
-        try{
+        try {
             func((err, res) => {
-                if(err){
+                if (err) {
                     return reject(err)
                 }
 
                 return resolve(res)
             })
-        }catch(err){
+        } catch (err) {
             return reject(err)
         }
     })

@@ -2,18 +2,18 @@ const fs = require('fs')
 const path = require('path')
 const Readable = require('stream').Readable
 
-let filePath = path.join(__dirname, './data', 'big.xml')
+const filePath = path.join(__dirname, './data', 'big.xml')
 
-let stream = fs.createWriteStream(filePath)
+const stream = fs.createWriteStream(filePath)
 
-let output = new Readable()
+const output = new Readable()
 output._read = () => {}
 
 output.pipe(stream)
 
 // Creates approx 1-2GB file
 output.push('<Document>')
-for(let x = 0; x < 2000000; x++){
+for (let x = 0; x < 2000000; x++) {
     output.push(`
     <MyTag1>
         <MyTag2>

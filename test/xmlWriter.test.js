@@ -2,7 +2,7 @@ const XmlReader = require('../src/XmlReader')
 const XmlWriter = require('../src/XmlWriter')
 const chai = require('chai')
 
-let testData1 = `
+const testData1 = `
 <document>
     <test hello="world">yo</test>
     <list>
@@ -53,15 +53,21 @@ describe('XmlWriter', () => {
 
         writer.adds('node', ['a', 'b'])
 
-        chai.expect(writer.toString()).to.deep.equal('<?xml version="1.0" encoding="utf-8"?><Document><node>a</node><node>b</node></Document>')
+        chai.expect(writer.toString()).to.deep.equal(
+            '<?xml version="1.0" encoding="utf-8"?><Document><node>a</node><node>b</node></Document>'
+        )
     })
 
     it('should inject several custom values with attributes', async () => {
         const writer = XmlWriter.create('', '', '', 'Document')
 
         const items = ['a', 'b']
-        writer.adds('node', items, (node, item)=> node.add('id', item), {prop:'yo'})
+        writer.adds('node', items, (node, item) => node.add('id', item), {
+            prop: 'yo',
+        })
 
-        chai.expect(writer.toString()).to.deep.equal('<?xml version="1.0" encoding="utf-8"?><Document><node prop="yo"><id>a</id></node><node prop="yo"><id>b</id></node></Document>')
+        chai.expect(writer.toString()).to.deep.equal(
+            '<?xml version="1.0" encoding="utf-8"?><Document><node prop="yo"><id>a</id></node><node prop="yo"><id>b</id></node></Document>'
+        )
     })
 })

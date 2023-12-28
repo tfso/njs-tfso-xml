@@ -1,6 +1,6 @@
 const ReadableStream = require('stream').Readable
 
-function stringToStream(str){
+function stringToStream(str) {
     const stream = new ReadableStream()
     stream._read = () => {}
 

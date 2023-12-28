@@ -2,42 +2,44 @@ const ReadableStream = require('stream').Readable
 const sax = require('sax')
 const _ = require('lodash')
 
-function convertNodeToXml2JsFormat(node){
-    let newNode = {}
+function convertNodeToXml2JsFormat(node) {
+    const newNode = {}
 
-    let children = _(node.children)
+    const children = _(node.children)
         .groupBy('name')
-        .mapValues(nodes => nodes.map(value => convertNodeToXml2JsFormat(value)))
+        .mapValues((nodes) =>
+            nodes.map((value) => convertNodeToXml2JsFormat(value))
+        )
         .value()
 
-    if(node.text){
+    if (node.text) {
         newNode.text = node.text
     }
-    if(Object.keys(node.attributes).length > 0){
+    if (Object.keys(node.attributes).length > 0) {
         newNode.attributes = node.attributes
     }
-    if(Object.keys(children).length > 0){
+    if (Object.keys(children).length > 0) {
         newNode.children = children
     }
 
     return newNode
 }
 
-function createOutputStream(){
-    const stream = new ReadableStream({objectMode: true})
+function createOutputStream() {
+    const stream = new ReadableStream({ objectMode: true })
     stream._read = () => {}
     let ended = false
 
     // Some utility methods below
 
-    stream.send = data => {
-        if(!ended){
+    stream.send = (data) => {
+        if (!ended) {
             stream.push(data)
         }
     }
 
-    stream.errorAndCancel = err => {
-        if(!ended){
+    stream.errorAndCancel = (err) => {
+        if (!ended) {
             stream.emit('error', err)
             stream.push(null)
             ended = true
@@ -45,7 +47,7 @@ function createOutputStream(){
     }
 
     stream.end = () => {
-        if(!ended){
+        if (!ended) {
             stream.push(null)
             ended = true
         }
@@ -54,7 +56,7 @@ function createOutputStream(){
     return stream
 }
 
-function streamParse(inputStream, splitOn = ''){
+function streamParse(inputStream, splitOn = '') {
     const parser = sax.createStream(true)
     const output = createOutputStream()
 
@@ -63,53 +65,58 @@ function streamParse(inputStream, splitOn = ''){
         attributes: {},
         text: '',
         children: [],
-        parent: null
+        parent: null,
     }
 
-    let stack = [baseNode]
+    const stack = [baseNode]
 
     parser.onopentag = (node) => {
-        let parent = stack[stack.length - 1]
+        const parent = stack[stack.length - 1]
         node = {
             name: node.name,
             attributes: node.attributes,
             text: '',
             cdata: false,
             children: [],
-            parent
+            parent,
         }
         parent.children.push(node)
 
         stack.push(node)
     }
-    parser.ontext = text => {
-        if(stack.length > 0){
+    parser.ontext = (text) => {
+        if (stack.length > 0) {
             stack[stack.length - 1].text += text
         }
     }
-    parser.oncdata = text => {
-        if(stack.length > 0){
+    parser.oncdata = (text) => {
+        if (stack.length > 0) {
             stack[stack.length - 1].text += text
             stack[stack.length - 1].cdata = true
         }
     }
     parser.onclosetag = (name) => {
-        let location = stack.slice(2).map(n => n.name).join('.') // NB: Doesn't include the base node OR document tag
-        let node = stack.pop()
+        const location = stack
+            .slice(2)
+            .map((n) => n.name)
+            .join('.') // NB: Doesn't include the base node OR document tag
+        const node = stack.pop()
 
         node.text = node.text.trim()
 
-        if(location === splitOn){
-            let documentNode = baseNode.children[0]
-            let documentTag = documentNode.name
-            let data = convertNodeToXml2JsFormat(documentNode)
+        if (location === splitOn) {
+            const documentNode = baseNode.children[0]
+            const documentTag = documentNode.name
+            const data = convertNodeToXml2JsFormat(documentNode)
 
-            node.parent.children = node.parent.children.filter(child => child.name !== name) // This is the magic trick that saves memory. Removes all nodes with the tag to split on.
+            node.parent.children = node.parent.children.filter(
+                (child) => child.name !== name
+            ) // This is the magic trick that saves memory. Removes all nodes with the tag to split on.
 
-            output.send({data, documentTag})
+            output.send({ data, documentTag })
         }
     }
-    parser.on('error', err => {
+    parser.on('error', (err) => {
         output.errorAndCancel(err)
     })
     parser.on('end', () => {
