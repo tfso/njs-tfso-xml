@@ -1,6 +1,6 @@
 {
   "name": "@tfso/njs-xml",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "main": "./index.js",
   "scripts": {
     "clean": "rm -rf package-lock.json node_modules",
